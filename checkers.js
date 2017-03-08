@@ -57,7 +57,7 @@ $('document').ready (function() {
     }
     function createBSPiece(color, row, col){
         boardState[row][col] = {
-            color:color,
+            color: color,
             kinged: false,
             row: row,
             col: col
@@ -81,6 +81,7 @@ $('document').ready (function() {
         }
         else if (clickedCell) {
             chosenOne = clickedCell;
+            highlightMoves(piece);
         }
     });
     function movePiece(piece, trgtRow, trgtCol) {
@@ -99,5 +100,19 @@ $('document').ready (function() {
     function movePieceDOM (piece, trgtRow, trgtCol) {
         var img = $('#' + piece.row + piece.col).find("img")
         $('#' + trgtRow + trgtCol).append(img);
+    }
+    function highlightMoves(piece) {
+        var direction = piece.color === 'white' ? piece.row + 1 : piece.row - 1;
+        function selectHighlights(piece) {
+            var potentialRow = direction;
+            var potentialColRight = piece.col + 1;
+            var potentialColLeft piece.col - 1;
+            if (potentialColLeft > 8 || potentialColLeft < 0){
+                addToArr(direction, )
+            }
+            if (potentialColRight > 8 || potentialColRight < 0){
+            }
+
+        }
     }
 });
