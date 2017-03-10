@@ -1,4 +1,4 @@
-$('document').ready (function() {
+$('document').ready(function() {
     var chosenOne;
     var boardState = [
         new Array(8),
@@ -10,7 +10,7 @@ $('document').ready (function() {
         new Array(8),
         new Array(8)
     ];
-    function buildBoard () {
+    function buildBoard() {
         for(var i = 0; i < 8; i++){
             addRow(i);
             for(var j = 0; j < 8; j++) {
@@ -18,11 +18,11 @@ $('document').ready (function() {
             };
         };
     }
-    function addRow (i) {
+    function addRow(i) {
         var newDiv = $("<div>", {id: "row" + i, "class": "row"});
         $('#master-div').append(newDiv);
     }
-    function addColumn (i, j) {
+    function addColumn(i, j) {
         var newCol = $("<div>", {id: '' + i + j, 'class': 'column ' + (squareIsRed(i, j) ? 'red-cell' : '')});
         $('#row' + i).append(newCol);
     }
@@ -75,13 +75,13 @@ $('document').ready (function() {
         var col = id[1];
         var clickedCell = boardState[row][col];
         console.log(clickedCell);
-        if (chosenOne) {
+        if(chosenOne) {
             movePiece(chosenOne, row, col);
             chosenOne = null;
         }
-        else if (clickedCell) {
+        else if(clickedCell) {
             chosenOne = clickedCell;
-            highlightMoves(piece);
+            highlightMoves(clickedCell);
         }
     });
     function movePiece(piece, trgtRow, trgtCol) {
@@ -102,17 +102,56 @@ $('document').ready (function() {
         $('#' + trgtRow + trgtCol).append(img);
     }
     function highlightMoves(piece) {
-        var direction = piece.color === 'white' ? piece.row + 1 : piece.row - 1;
-        function selectHighlights(piece) {
-            var potentialRow = direction;
-            var potentialColRight = piece.col + 1;
-            var potentialColLeft piece.col - 1;
-            if (potentialColLeft > 8 || potentialColLeft < 0){
-                addToArr(direction, )
-            }
-            if (potentialColRight > 8 || potentialColRight < 0){
-            }
-
+        var targets = getMoves(piece);
+        for (var i = 0; i < targets.length; i++){
+            highlight(targets[i]);
         }
     }
+    function highlight (target) {
+        var targetId = '' + target.row + target.col;
+        $('#' + targetId).addClass('highlight');
+    }
+    function getMoves(piece) {
+        var potentialMoves = [];
+        getSingleMoves(piece, potentialMoves);
+        //getJumpMoves(dir, piece, potentialMoves);
+        return potentialMoves;
+    }
+    function getSingleMoves(piece, moveArr) {
+        var leftTarget = genTargetCoords('single', 'left', piece);
+        var rightTarget = genTargetCoords('single', 'right', piece);
+        if(canMoveTo(leftTarget)){
+            moveArr.push(leftTarget);
+        }
+        if(canMoveTo(rightTarget)){
+            moveArr.push(rightTarget);
+        }
+        return moveArr;
+    }
+    function getJumpMoves(dir, piece, moveArr) {
+        var leftTarget = genTargetCoords ('jump', 'left', piece)
+        var rightTarget = genTargetCoords ('jump', 'right', piece)
+
+    }
+    function genTargetCoords(type, side, piece){
+        var verticalDir = piece.color === 'white' ? 1 : -1;
+        var horizontalDir = side === 'left' ? -1 : 1;
+        var rowOffset = type === 'single' ? verticalDir : verticalDir * 2;
+        var colOffset = type === 'single' ? horizontalDir : horizontalDir * 2;
+        return {
+            row: piece.row + rowOffset,
+            col: piece.col + colOffset
+        };
+    }
+    function canMoveTo(target) {
+        // be on board & unoccupied
+        return isOnBoard(target.row, target.col) && isEmpty(target.row, target.col);
+    }
+    function isOnBoard(row, col) {
+        return row >= 0 && row < 8 && col >= 0 && col < 8;
+    }
+    function isEmpty(row, col) {
+        return !boardState[row][col];
+    }
+
 });

@@ -15,7 +15,9 @@
 .red-cell {
     background-color: red;
 }
-
+.highlight {
+    background-color: green;
+}
 .column > img{
     width:100px;
     margin-left:auto;
