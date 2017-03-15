@@ -100,6 +100,7 @@ $('document').ready(function() {
     function movePieceDOM (piece, trgtRow, trgtCol) {
         var img = $('#' + piece.row + piece.col).find("img")
         $('#' + trgtRow + trgtCol).append(img);
+        $('.highlight').removeClass('highlight')
     }
     function highlightMoves(piece) {
         var targets = getMoves(piece);
@@ -114,7 +115,7 @@ $('document').ready(function() {
     function getMoves(piece) {
         var potentialMoves = [];
         getSingleMoves(piece, potentialMoves);
-        //getJumpMoves(dir, piece, potentialMoves);
+        getJumpMoves(piece, potentialMoves);
         return potentialMoves;
     }
     function getSingleMoves(piece, moveArr) {
@@ -128,10 +129,15 @@ $('document').ready(function() {
         }
         return moveArr;
     }
-    function getJumpMoves(dir, piece, moveArr) {
+    function getJumpMoves(piece, moveArr) {
         var leftTarget = genTargetCoords ('jump', 'left', piece)
         var rightTarget = genTargetCoords ('jump', 'right', piece)
-
+        if(canJumpTo(leftTarget, piece)){
+            moveArr.push(leftTarget);
+        }
+        if(canJumpTo(rightTarget, piece)){
+            moveArr.push(rightTarget);
+        }
     }
     function genTargetCoords(type, side, piece){
         var verticalDir = piece.color === 'white' ? 1 : -1;
@@ -143,6 +149,11 @@ $('document').ready(function() {
             col: piece.col + colOffset
         };
     }
+    function canJumpTo(target, piece) {
+        // canMoveTo(target);
+        return wouldJumpEnemy(target, piece);
+        // check if in between square is occupied by enemy
+    }
     function canMoveTo(target) {
         // be on board & unoccupied
         return isOnBoard(target.row, target.col) && isEmpty(target.row, target.col);
@@ -153,5 +164,18 @@ $('document').ready(function() {
     function isEmpty(row, col) {
         return !boardState[row][col];
     }
-
+    function wouldJumpEnemy(target, piece) {
+        var betweenSquare = getBetweenSquare(target, piece);
+        return isEnemy(betweenSquare);
+    }
+    function isEnemy(coords) {
+        var square = boardState[coords.row][coords.col];
+        return square && square.color != chosenOne.color;
+    }
+    function getBetweenSquare(target, piece) {
+        var squareCoords = {}
+        squareCoords.row = (target.row + piece.row) / 2;
+        squareCoords.col = (target.col + piece.col) / 2;
+        return squareCoords;
+    }
 });
