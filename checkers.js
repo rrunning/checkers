@@ -85,8 +85,13 @@ $('document').ready(function() {
         }
     });
     function movePiece(piece, trgtRow, trgtCol) {
-        movePieceDOM(piece, trgtRow, trgtCol);
-        movePieceBS(piece, trgtRow, trgtCol);
+        if (isHighlighted(trgtRow, trgtCol)) {
+            movePieceDOM(piece, trgtRow, trgtCol);
+            movePieceBS(piece, trgtRow, trgtCol);
+        }
+        else {
+            alert("This doesn't work")
+        }
     }
     function movePieceBS(piece, trgtRow, trgtCol) {
         //remove piece from old location
@@ -145,18 +150,18 @@ $('document').ready(function() {
         var rowOffset = type === 'single' ? verticalDir : verticalDir * 2;
         var colOffset = type === 'single' ? horizontalDir : horizontalDir * 2;
         return {
-            row: piece.row + rowOffset,
-            col: piece.col + colOffset
+            row: Number(piece.row) + rowOffset,
+            col: Number(piece.col) + colOffset
         };
     }
     function canJumpTo(target, piece) {
-        // canMoveTo(target);
-        return wouldJumpEnemy(target, piece);
+
+        return canMoveTo(target) && wouldJumpEnemy(target, piece)
         // check if in between square is occupied by enemy
     }
     function canMoveTo(target) {
         // be on board & unoccupied
-        return isOnBoard(target.row, target.col) && isEmpty(target.row, target.col);
+        return isOnBoard(target.row, target.col) && isEmpty(target.row, target.col)
     }
     function isOnBoard(row, col) {
         return row >= 0 && row < 8 && col >= 0 && col < 8;
@@ -174,8 +179,11 @@ $('document').ready(function() {
     }
     function getBetweenSquare(target, piece) {
         var squareCoords = {}
-        squareCoords.row = (target.row + piece.row) / 2;
-        squareCoords.col = (target.col + piece.col) / 2;
+        squareCoords.row = (target.row + Number(piece.row)) / 2;
+        squareCoords.col = (target.col + Number(piece.col)) / 2;
         return squareCoords;
+    }
+    function isHighlighted (targetRow, targetCol) {
+        return $('#' + targetRow + targetCol).hasClass('highlight')
     }
 });
