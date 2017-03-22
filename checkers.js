@@ -77,6 +77,7 @@ $('document').ready(function() {
         console.log(clickedCell);
         if(chosenOne) {
             movePiece(chosenOne, row, col);
+            highlightAdditionalMoves(chosenOne);
             chosenOne = null;
         }
         else if(clickedCell) {
@@ -121,7 +122,7 @@ $('document').ready(function() {
         var potentialMoves = [];
         getSingleMoves(piece, potentialMoves);
         getJumpMoves(piece, potentialMoves);
-        return potentialMoves;
+        return potentialMoves
     }
     function getSingleMoves(piece, moveArr) {
         var leftTarget = genTargetCoords('single', 'left', piece);
@@ -183,7 +184,18 @@ $('document').ready(function() {
         squareCoords.col = (target.col + Number(piece.col)) / 2;
         return squareCoords;
     }
-    function isHighlighted (targetRow, targetCol) {
+    function isHighlighted(targetRow, targetCol) {
         return $('#' + targetRow + targetCol).hasClass('highlight')
+    }
+    function findAdditionalMoves(piece) {
+        var potentialJumps = [];
+        getJumpMoves(piece, potentialJumps);
+        return potentialJumps
+    }
+    function highlightAdditionalMoves(piece) {
+        var targets = findAdditionalMoves(piece);
+        for (var i = 0; i < targets.length; i++){
+            highlight(targets[i]);
+        }
     }
 });
