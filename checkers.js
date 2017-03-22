@@ -1,5 +1,6 @@
 $('document').ready(function() {
     var chosenOne;
+    var turn = 'white';
     var boardState = [
         new Array(8),
         new Array(8),
@@ -75,14 +76,22 @@ $('document').ready(function() {
         var col = id[1];
         var clickedCell = boardState[row][col];
         console.log(clickedCell);
-        if(chosenOne) {
-            movePiece(chosenOne, row, col);
-            highlightAdditionalMoves(chosenOne);
-            chosenOne = null;
-        }
-        else if(clickedCell) {
+        if(clickedCell && clickedCell.color === turn){
             chosenOne = clickedCell;
-            highlightMoves(clickedCell);
+            var targets = getMoves(chosenOne);
+            highlightMoves(targets);
+        }
+        else if(chosenOne) {
+            movePiece(chosenOne, row, col);
+            //if can jump again, highlight. Else, end turn
+            var newTargets = getJumpMoves(chosenOne,[]);
+            if(newTargets.length){
+                highlightMoves(newTargets);
+            }
+            else{
+                endTurn();
+            }
+            highlightAdditionalMoves(chosenOne);
         }
     });
     function movePiece(piece, trgtRow, trgtCol) {
@@ -108,8 +117,7 @@ $('document').ready(function() {
         $('#' + trgtRow + trgtCol).append(img);
         $('.highlight').removeClass('highlight')
     }
-    function highlightMoves(piece) {
-        var targets = getMoves(piece);
+    function highlightMoves(targets) {
         for (var i = 0; i < targets.length; i++){
             highlight(targets[i]);
         }
@@ -122,7 +130,7 @@ $('document').ready(function() {
         var potentialMoves = [];
         getSingleMoves(piece, potentialMoves);
         getJumpMoves(piece, potentialMoves);
-        return potentialMoves
+        return potentialMoves;
     }
     function getSingleMoves(piece, moveArr) {
         var leftTarget = genTargetCoords('single', 'left', piece);
@@ -144,6 +152,7 @@ $('document').ready(function() {
         if(canJumpTo(rightTarget, piece)){
             moveArr.push(rightTarget);
         }
+        return moveArr;
     }
     function genTargetCoords(type, side, piece){
         var verticalDir = piece.color === 'white' ? 1 : -1;
@@ -187,15 +196,13 @@ $('document').ready(function() {
     function isHighlighted(targetRow, targetCol) {
         return $('#' + targetRow + targetCol).hasClass('highlight')
     }
-    function findAdditionalMoves(piece) {
-        var potentialJumps = [];
-        getJumpMoves(piece, potentialJumps);
-        return potentialJumps
-    }
-    function highlightAdditionalMoves(piece) {
-        var targets = findAdditionalMoves(piece);
-        for (var i = 0; i < targets.length; i++){
-            highlight(targets[i]);
+    function endTurn() {
+        if (turn === 'white') {
+            turn = 'black';
         }
+        else {
+            turn = 'white';
+        }
+        chosenOne = null;
     }
 });
