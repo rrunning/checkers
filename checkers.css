@@ -23,3 +23,13 @@
     margin-left:auto;
     margin-right:auto;
 }
+button {
+    width: 100px;
+    height: 40px;
+    background-color: black;
+    color: white;
+    /*display: none;*/
+}
+button.show-button {
+    display: inline-block;
+}

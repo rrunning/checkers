@@ -1,6 +1,7 @@
 $('document').ready(function() {
     var chosenOne;
     var turn = 'white';
+    var jumped = false;
     var boardState = [
         new Array(8),
         new Array(8),
@@ -83,15 +84,22 @@ $('document').ready(function() {
         }
         else if(chosenOne) {
             movePiece(chosenOne, row, col);
+            additionalMovesPossible(chosenOne, row)
             //if can jump again, highlight. Else, end turn
             var newTargets = getJumpMoves(chosenOne,[]);
             if(newTargets.length){
                 highlightMoves(newTargets);
+                $('#end-turn').click(function() {
+                    $('button').addClass('show-button');
+                    endTurn();
+                });
             }
             else{
                 endTurn();
             }
-            highlightAdditionalMoves(chosenOne);
+            if (jumped === true) {
+                highlightAdditionalMoves(chosenOne);
+            }
         }
     });
     function movePiece(piece, trgtRow, trgtCol) {
@@ -115,9 +123,10 @@ $('document').ready(function() {
     function movePieceDOM (piece, trgtRow, trgtCol) {
         var img = $('#' + piece.row + piece.col).find("img")
         $('#' + trgtRow + trgtCol).append(img);
-        $('.highlight').removeClass('highlight')
+        removeHighlights();
     }
     function highlightMoves(targets) {
+        removeHighlights();
         for (var i = 0; i < targets.length; i++){
             highlight(targets[i]);
         }
@@ -204,5 +213,14 @@ $('document').ready(function() {
             turn = 'white';
         }
         chosenOne = null;
+        removeHighlights();
+    }
+    function additionalMovesPossible(piece, targetRow) {
+        if (piece.row - targetRow === 2 || piece.row + targetRow === 2) {
+            jumped = true;
+        }
+    }
+    function removeHighlights() {
+        $('.highlight').removeClass('highlight')
     }
 });
