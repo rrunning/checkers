@@ -1,7 +1,6 @@
 $('document').ready(function() {
     var chosenOne;
     var turn = 'white';
-    var jumped = false;
     var boardState = [
         new Array(8),
         new Array(8),
@@ -83,22 +82,28 @@ $('document').ready(function() {
             highlightMoves(targets);
         }
         else if(chosenOne) {
+            var jumped = didJump(chosenOne, row);
+            if(jumped){
+                // capture enemy
+                captureEnemy(chosenOne, row, col);
+            }
             movePiece(chosenOne, row, col);
-            additionalMovesPossible(chosenOne, row)
             //if can jump again, highlight. Else, end turn
-            var newTargets = getJumpMoves(chosenOne,[]);
-            if(newTargets.length){
-                highlightMoves(newTargets);
-                $('#end-turn').click(function() {
+            if (jumped === true) {
+                var newTargets = getJumpMoves(chosenOne,[]);
+                if(newTargets.length){
+                    highlightMoves(newTargets);
                     $('button').addClass('show-button');
+                    $('#end-turn').one('click',function() {
+                        endTurn();
+                    });
+                }
+                else{
                     endTurn();
-                });
+                }
             }
             else{
                 endTurn();
-            }
-            if (jumped === true) {
-                highlightAdditionalMoves(chosenOne);
             }
         }
     });
@@ -198,8 +203,8 @@ $('document').ready(function() {
     }
     function getBetweenSquare(target, piece) {
         var squareCoords = {}
-        squareCoords.row = (target.row + Number(piece.row)) / 2;
-        squareCoords.col = (target.col + Number(piece.col)) / 2;
+        squareCoords.row = (Number(target.row) + Number(piece.row)) / 2;
+        squareCoords.col = (Number(target.col) + Number(piece.col)) / 2;
         return squareCoords;
     }
     function isHighlighted(targetRow, targetCol) {
@@ -214,13 +219,30 @@ $('document').ready(function() {
         }
         chosenOne = null;
         removeHighlights();
+        jumped = false;
+        $('button').removeClass('show-button');
     }
-    function additionalMovesPossible(piece, targetRow) {
-        if (piece.row - targetRow === 2 || piece.row + targetRow === 2) {
-            jumped = true;
+    function didJump(piece, targetRow) {
+        if (Math.abs(piece.row - targetRow) === 2) {
+            return true;
         }
+        return false;
     }
     function removeHighlights() {
         $('.highlight').removeClass('highlight')
+    }
+    function captureEnemy(piece, row, col) {
+        var enemy = getBetweenSquare({row: row, col: col}, piece)
+        removePiece(enemy);
+    }
+    function removePiece(enemy) {
+        removePieceBS(enemy);
+        removePieceDOM(enemy);
+    }
+    function removePieceBS(coords) {
+        boardState[coords.row][coords.col] = null;
+    }
+    function removePieceDOM(coords) {
+        $('#' + coords.row + coords.col).html('');
     }
 });
