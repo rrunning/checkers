@@ -254,5 +254,18 @@ $('document').ready(function() {
         if ((piece.color === 'white' && piece.row === '7') || (piece.color === 'black' && piece.row === '0')) {
             piece.kinged = true;
         }
+        addCrown(piece);
+
+    }
+    function addCrown(piece) {
+        if (piece.kinged === true) {
+            removePieceDOM(piece);
+            if (piece.color === 'white') {
+                $('#' + piece.row + piece.col).html('<img src ="assets/kinged-white.png">')
+            }
+            else {
+                $('#' + piece.row + piece.col).html('<img src ="assets/kinged-black.png">')
+            }
+        }
     }
 });
