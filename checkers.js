@@ -92,6 +92,7 @@ $('document').ready(function() {
             }
             var pieceMoved = movePiece(chosenOne, row, col);
             if (!pieceMoved) return;
+            kingPiece(chosenOne);
             //if can jump again, highlight. Else, end turn
             if (jumped === true) {
                 var newTargets = getJumpMoves(chosenOne,[]);
@@ -183,7 +184,6 @@ $('document').ready(function() {
         };
     }
     function canJumpTo(target, piece) {
-
         return canMoveTo(target) && wouldJumpEnemy(target, piece)
         // check if in between square is occupied by enemy
     }
@@ -248,5 +248,11 @@ $('document').ready(function() {
     }
     function removePieceDOM(coords) {
         $('#' + coords.row + coords.col).html('');
+    }
+    function kingPiece(piece) {
+        // when piece reaches opposite side of board from starting side, change 'kinged' to true.
+        if ((piece.color === 'white' && piece.row === '7') || (piece.color === 'black' && piece.row === '0')) {
+            piece.kinged = true;
+        }
     }
 });
