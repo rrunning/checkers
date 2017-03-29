@@ -70,6 +70,9 @@ $('document').ready(function() {
         console.log(boardState);
     }
     setup();
+    $('#end-turn').click(function() {
+        endTurn();
+    });
     $('.red-cell').click(function(){
         var id = $(this).attr('id');
         var row = id[0];
@@ -87,16 +90,15 @@ $('document').ready(function() {
                 // capture enemy
                 captureEnemy(chosenOne, row, col);
             }
-            movePiece(chosenOne, row, col);
+            var pieceMoved = movePiece(chosenOne, row, col);
+            if (!pieceMoved) return;
             //if can jump again, highlight. Else, end turn
             if (jumped === true) {
                 var newTargets = getJumpMoves(chosenOne,[]);
                 if(newTargets.length){
                     highlightMoves(newTargets);
                     $('button').addClass('show-button');
-                    $('#end-turn').one('click',function() {
-                        endTurn();
-                    });
+
                 }
                 else{
                     endTurn();
@@ -111,9 +113,11 @@ $('document').ready(function() {
         if (isHighlighted(trgtRow, trgtCol)) {
             movePieceDOM(piece, trgtRow, trgtCol);
             movePieceBS(piece, trgtRow, trgtCol);
+            return true;
         }
         else {
             alert("This doesn't work")
+            return false;
         }
     }
     function movePieceBS(piece, trgtRow, trgtCol) {
