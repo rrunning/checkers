@@ -81,20 +81,21 @@ $('document').ready(function() {
         console.log(clickedCell);
         if(clickedCell && clickedCell.color === turn){
             chosenOne = clickedCell;
-            var targets = getMoves(chosenOne);
+            // check if piece is kinged
+            var targets = getAllMoves(chosenOne);
             highlightMoves(targets);
         }
         else if(chosenOne) {
             var jumped = didJump(chosenOne, row);
+            var pieceMoved = movePiece(chosenOne, row, col);
+            if (!pieceMoved) return;
             if(jumped){
                 // capture enemy
                 captureEnemy(chosenOne, row, col);
             }
-            var pieceMoved = movePiece(chosenOne, row, col);
-            if (!pieceMoved) return;
             kingPiece(chosenOne);
             //if can jump again, highlight. Else, end turn
-            if (jumped === true) {
+            if (jumped) {
                 var newTargets = getJumpMoves(chosenOne,[]);
                 if(newTargets.length){
                     highlightMoves(newTargets);
@@ -145,36 +146,44 @@ $('document').ready(function() {
         var targetId = '' + target.row + target.col;
         $('#' + targetId).addClass('highlight');
     }
-    function getMoves(piece) {
+    function getAllMoves(piece) {
         var potentialMoves = [];
         getSingleMoves(piece, potentialMoves);
         getJumpMoves(piece, potentialMoves);
         return potentialMoves;
     }
     function getSingleMoves(piece, moveArr) {
-        var leftTarget = genTargetCoords('single', 'left', piece);
-        var rightTarget = genTargetCoords('single', 'right', piece);
-        if(canMoveTo(leftTarget)){
-            moveArr.push(leftTarget);
-        }
-        if(canMoveTo(rightTarget)){
-            moveArr.push(rightTarget);
-        }
-        return moveArr;
+        return getMoves(piece,moveArr,'single');
     }
     function getJumpMoves(piece, moveArr) {
-        var leftTarget = genTargetCoords ('jump', 'left', piece)
-        var rightTarget = genTargetCoords ('jump', 'right', piece)
-        if(canJumpTo(leftTarget, piece)){
+        return getMoves(piece,moveArr,'jump');
+    }
+    function getMoves(piece, moveArr, moveType) {
+        var validateFn = moveType === 'single' ? canMoveTo : canJumpTo;
+        var leftTarget = genTargetCoords (moveType, 'left', piece, piece.color);
+        var rightTarget = genTargetCoords (moveType, 'right', piece, piece.color);
+        if(validateFn(leftTarget, piece)){
             moveArr.push(leftTarget);
         }
-        if(canJumpTo(rightTarget, piece)){
+        if(validateFn(rightTarget, piece)){
             moveArr.push(rightTarget);
+        }
+        if(piece.kinged){
+            var enemyColor = piece.color === 'white' ? 'black' : 'white';
+            var leftReverseTarget = genTargetCoords(moveType, 'left', piece, enemyColor);
+            var rightReverseTarget = genTargetCoords(moveType, 'right', piece, enemyColor);
+            if(validateFn(leftReverseTarget, piece)){
+                moveArr.push(leftReverseTarget);
+            }
+            if(validateFn(rightReverseTarget, piece)){
+                moveArr.push(rightReverseTarget);
+            }
         }
         return moveArr;
     }
-    function genTargetCoords(type, side, piece){
-        var verticalDir = piece.color === 'white' ? 1 : -1;
+    function genTargetCoords(type, side, piece, color){
+        var verticalDir = color === 'white' ? 1 : -1;
+        // if kinged, regardless of color var verticalDirKinged === 1 && -1
         var horizontalDir = side === 'left' ? -1 : 1;
         var rowOffset = type === 'single' ? verticalDir : verticalDir * 2;
         var colOffset = type === 'single' ? horizontalDir : horizontalDir * 2;
