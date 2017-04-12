@@ -11,13 +11,13 @@ $('document').ready(function() {
         new Array(8),
         new Array(8)
     ];
-    function buildBoard() {
+    function buildBoard () {
         for(var i = 0; i < 8; i++){
             addRow(i);
             for(var j = 0; j < 8; j++) {
                 addColumn(i, j);
-            };
-        };
+            }
+        }
     }
     function addRow(i) {
         var newDiv = $("<div>", {id: "row" + i, "class": "row"});
@@ -87,12 +87,13 @@ $('document').ready(function() {
         }
         else if(chosenOne) {
             var jumped = didJump(chosenOne, row);
-            var pieceMoved = movePiece(chosenOne, row, col);
-            if (!pieceMoved) return;
             if(jumped){
                 // capture enemy
                 captureEnemy(chosenOne, row, col);
             }
+            var pieceMoved = movePiece(chosenOne, row, col);
+            if (!pieceMoved) return;
+            endGame(turn);
             kingPiece(chosenOne);
             //if can jump again, highlight. Else, end turn
             if (jumped) {
@@ -100,7 +101,6 @@ $('document').ready(function() {
                 if(newTargets.length){
                     highlightMoves(newTargets);
                     $('button').addClass('show-button');
-
                 }
                 else{
                     endTurn();
@@ -276,5 +276,16 @@ $('document').ready(function() {
                 $('#' + piece.row + piece.col).html('<img src ="assets/kinged-black.png">')
             }
         }
+    }
+    function endGame (turn) {
+        var oppColor = turn === 'white' ? 'black' : 'white';
+        for (var i = 0; i < boardState.length; i++) {
+            for (var j = 0; j < boardState[i].length; j++){
+                if (boardState[i][j] && boardState[i][j].color === oppColor) {
+                    return;
+                }
+            }
+        }
+        alert("GAME OVER. " + turn + " has won the game.")
     }
 });
