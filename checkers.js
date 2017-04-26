@@ -11,6 +11,48 @@ $('document').ready(function() {
         new Array(8),
         new Array(8)
     ];
+    setup();
+    $('.red-cell').click(function(){
+        var id = $(this).attr('id');
+        var row = id[0];
+        var col = id[1];
+        var clickedCell = boardState[row][col];
+        console.log(clickedCell);
+        if(clickedCell && clickedCell.color === turn){
+            chosenOne = clickedCell;
+            // check if piece is kinged
+            var targets = getAllMoves(chosenOne);
+            highlightMoves(targets);
+        }
+        else if(chosenOne) {
+            var jumped = didJump(chosenOne, row);
+            if(jumped){
+                // capture enemy
+                captureEnemy(chosenOne, row, col);
+            }
+            var pieceMoved = movePiece(chosenOne, row, col);
+            if (!pieceMoved) return;
+            endGame(turn);
+            kingPiece(chosenOne);
+            //if can jump again, highlight. Else, end turn
+            if (jumped) {
+                var newTargets = getJumpMoves(chosenOne,[]);
+                if(newTargets.length){
+                    highlightMoves(newTargets);
+                    $('button').addClass('show-button');
+                }
+                else{
+                    endTurn();
+                }
+            }
+            else{
+                endTurn();
+            }
+        }
+    });
+
+    // board setup
+
     function buildBoard () {
         for(var i = 0; i < 8; i++){
             addRow(i);
@@ -69,47 +111,12 @@ $('document').ready(function() {
         placePieces();
         console.log(boardState);
     }
-    setup();
+
+    // movement functions
+
+
     $('#end-turn').click(function() {
         endTurn();
-    });
-    $('.red-cell').click(function(){
-        var id = $(this).attr('id');
-        var row = id[0];
-        var col = id[1];
-        var clickedCell = boardState[row][col];
-        console.log(clickedCell);
-        if(clickedCell && clickedCell.color === turn){
-            chosenOne = clickedCell;
-            // check if piece is kinged
-            var targets = getAllMoves(chosenOne);
-            highlightMoves(targets);
-        }
-        else if(chosenOne) {
-            var jumped = didJump(chosenOne, row);
-            if(jumped){
-                // capture enemy
-                captureEnemy(chosenOne, row, col);
-            }
-            var pieceMoved = movePiece(chosenOne, row, col);
-            if (!pieceMoved) return;
-            endGame(turn);
-            kingPiece(chosenOne);
-            //if can jump again, highlight. Else, end turn
-            if (jumped) {
-                var newTargets = getJumpMoves(chosenOne,[]);
-                if(newTargets.length){
-                    highlightMoves(newTargets);
-                    $('button').addClass('show-button');
-                }
-                else{
-                    endTurn();
-                }
-            }
-            else{
-                endTurn();
-            }
-        }
     });
     function movePiece(piece, trgtRow, trgtCol) {
         if (isHighlighted(trgtRow, trgtCol)) {
